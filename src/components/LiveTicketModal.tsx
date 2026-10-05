@@ -97,7 +97,7 @@ export const LiveTicketModal: React.FC<LiveTicketModalProps> = ({
         <div className="relative z-10 p-5 pb-3 flex items-center justify-between border-b border-white/10">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#7E9C72] animate-pulse" />
-            <span className="font-editorial text-xs uppercase tracking-[0.25em] text-[#A7C09D] font-bold">
+            <span className="text-xs uppercase tracking-wider text-[#A7C09D] font-bold">
               MP BAKU · LIVE TALON
             </span>
           </div>
@@ -150,7 +150,7 @@ export const LiveTicketModal: React.FC<LiveTicketModalProps> = ({
               className="cursor-pointer group flex items-center justify-center gap-2 pt-1"
               title="Нажмите чтобы скопировать номер"
             >
-              <h1 className="text-5xl sm:text-6xl font-editorial font-black tracking-tight text-[#FAF6EE] group-hover:scale-105 transition-transform">
+              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-[#FAF6EE] group-hover:scale-105 transition-transform">
                 {order.id}
               </h1>
             </div>
@@ -161,7 +161,7 @@ export const LiveTicketModal: React.FC<LiveTicketModalProps> = ({
 
             {/* Barista handwritten cup label */}
             <div className="pt-1">
-              <span className="inline-block px-4 py-1.5 rounded-xl bg-black/40 border border-white/10 font-serif italic text-sm text-[#E3D7B1]">
+              <span className="inline-block px-4 py-1.5 rounded-xl bg-black/40 border border-white/10 text-xs text-[#E3D7B1]">
                 Для: {order.customerName || 'Любителя матчи'} · {order.orderType === 'takeaway' ? 'С собой (To-Go)' : 'В баре'}
               </span>
             </div>
@@ -178,7 +178,7 @@ export const LiveTicketModal: React.FC<LiveTicketModalProps> = ({
               <p className="text-sm font-semibold text-white">
                 Пожалуйста, подойдите к барной стойке и назовите номер:
               </p>
-              <div className="text-2xl font-editorial font-black text-[#FAF6EE]">
+              <div className="text-2xl font-bold tracking-tight text-[#FAF6EE]">
                 {order.id}
               </div>
             </div>
@@ -283,7 +283,7 @@ export const LiveTicketModal: React.FC<LiveTicketModalProps> = ({
                     </span>
                     <span className="text-white/40">×{item.quantity}</span>
                   </div>
-                  <span className="font-serif font-bold text-white">
+                  <span className="font-bold text-white">
                     {item.price * item.quantity} ₼
                   </span>
                 </div>
@@ -296,7 +296,7 @@ export const LiveTicketModal: React.FC<LiveTicketModalProps> = ({
                 Сумма к оплате
               </span>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-serif font-bold text-[#FAF6EE]">
+                <span className="text-2xl font-bold tracking-tight text-[#FAF6EE]">
                   {order.totalAmount}
                 </span>
                 <span className="text-xs font-bold text-[#7E9C72]">₼ AZN</span>

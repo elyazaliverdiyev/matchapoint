@@ -18,7 +18,7 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2.5">
-              <span className="font-editorial text-2xl font-bold tracking-wider">
+              <span className="font-bold text-2xl tracking-tight">
                 mp.
               </span>
               <span className="text-xs uppercase tracking-[0.25em] text-[#7E9C72] font-semibold">
@@ -65,8 +65,8 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Editorial Big Statement */}
-        <div className="py-8 border-y border-white/5 text-center">
-          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-editorial font-bold uppercase tracking-widest text-white/20 select-none">
+        <div className="py-6 border-y border-white/5 text-center">
+          <h2 className="text-xl sm:text-3xl lg:text-4xl font-bold uppercase tracking-widest text-white/20 select-none">
             ALWAYS DRINK MATCHA
           </h2>
         </div>

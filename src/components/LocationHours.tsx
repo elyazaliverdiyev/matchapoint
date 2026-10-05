@@ -16,7 +16,7 @@ export const LocationHours: React.FC = () => {
               <span>График Работы Бара</span>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#FAF6EE]">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#FAF6EE]">
               Мы открыты по Средам и Выходным
             </h2>
 
@@ -74,7 +74,7 @@ export const LocationHours: React.FC = () => {
               <span>Baku, Azerbaijan</span>
             </div>
 
-            <h3 className="text-2xl sm:text-3xl font-serif font-bold text-[#FAF6EE]">
+            <h3 className="text-lg sm:text-xl font-bold tracking-tight text-[#FAF6EE]">
               Уютная локация в Баку
             </h3>
 

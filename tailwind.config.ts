@@ -9,9 +9,29 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-        serif: ['"Playfair Display"', 'Georgia', 'serif'],
-        editorial: ['"Cinzel"', 'serif'],
+        sans: [
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"SF Pro Display"',
+          '"SF Pro Text"',
+          '"Plus Jakarta Sans"',
+          'system-ui',
+          'sans-serif',
+        ],
+        serif: [
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"SF Pro Display"',
+          '"Plus Jakarta Sans"',
+          'sans-serif',
+        ],
+        editorial: [
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"SF Pro Display"',
+          '"Plus Jakarta Sans"',
+          'sans-serif',
+        ],
       },
       colors: {
         matcha: {

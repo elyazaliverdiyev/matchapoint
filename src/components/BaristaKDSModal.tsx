@@ -97,7 +97,7 @@ export const BaristaKDSModal: React.FC<BaristaKDSModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="font-editorial text-base sm:text-lg font-bold">
+                <h2 className="font-bold text-base sm:text-lg tracking-tight">
                   Панель Управления Бариста · MP KDS
                 </h2>
                 <span className="px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold">
@@ -188,7 +188,7 @@ export const BaristaKDSModal: React.FC<BaristaKDSModalProps> = ({
             {activeOrders.length === 0 ? (
               <div className="py-16 text-center space-y-3">
                 <span className="text-4xl block">🍃</span>
-                <h3 className="font-serif font-bold text-lg text-white/80">
+                <h3 className="font-bold text-base text-white/80">
                   Очередь заказов пуста
                 </h3>
                 <p className="text-xs text-white/40 max-w-sm mx-auto">
@@ -222,7 +222,7 @@ export const BaristaKDSModal: React.FC<BaristaKDSModalProps> = ({
                         className="p-4 rounded-2xl bg-amber-950/15 border border-amber-500/30 space-y-3 shadow-lg"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-xl font-editorial font-black text-amber-200">
+                          <span className="text-xl font-bold tracking-tight text-amber-200">
                             {ord.id}
                           </span>
                           <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-amber-900/40 text-amber-300">
@@ -282,7 +282,7 @@ export const BaristaKDSModal: React.FC<BaristaKDSModalProps> = ({
                         className="p-4 rounded-2xl bg-white/[0.04] border border-[#7E9C72]/40 space-y-3 shadow-lg"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-xl font-editorial font-black text-[#FAF6EE]">
+                          <span className="text-xl font-bold tracking-tight text-[#FAF6EE]">
                             {ord.id}
                           </span>
                           <span className="text-[10px] px-2 py-0.5 rounded bg-[#7E9C72]/20 text-[#A7C09D] font-bold">
@@ -338,7 +338,7 @@ export const BaristaKDSModal: React.FC<BaristaKDSModalProps> = ({
                         className="p-4 rounded-2xl bg-gradient-to-br from-[#D4AF37]/20 to-black/40 border-2 border-[#D4AF37] space-y-3 shadow-xl"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-2xl font-editorial font-black text-[#FAF6EE]">
+                          <span className="text-xl font-bold tracking-tight text-[#FAF6EE]">
                             {ord.id}
                           </span>
                           <span className="text-[10px] px-2 py-0.5 rounded bg-[#D4AF37] text-black font-black uppercase">

@@ -40,10 +40,10 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
         <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-[#7E9C72] font-semibold">
           Kyoto Matcha & Baku Bakery
         </span>
-        <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#FAF6EE] mt-1 tracking-tight">
+        <h2 className="text-xl sm:text-2xl font-bold text-[#FAF6EE] mt-1 tracking-tight">
           Полное Меню Бара
         </h2>
-        <p className="text-xs text-[#FAF6EE]/60 mt-1.5 font-light">
+        <p className="text-xs text-[#FAF6EE]/60 mt-1 font-normal">
           Японская церемониальная матча и свежая ежедневная выпечка.
         </p>
 
@@ -135,12 +135,23 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                   )}
                 </div>
 
-                <h3 className="text-lg sm:text-xl font-serif font-bold text-[#FAF6EE] leading-snug">
-                  {product.name}
-                </h3>
-                <p className="text-xs text-[#FAF6EE]/60 mt-1 leading-relaxed">
-                  {product.subtitle}
-                </p>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <h3 className="text-base font-bold text-[#FAF6EE] leading-snug">
+                      {product.name}
+                    </h3>
+                    <p className="text-xs text-[#FAF6EE]/60 mt-0.5 leading-relaxed">
+                      {product.subtitle}
+                    </p>
+                  </div>
+                  {product.image && (
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-13 h-13 object-contain flex-shrink-0 drop-shadow-md rounded-lg"
+                    />
+                  )}
+                </div>
                 {product.description && (
                   <p className="text-[11px] text-[#FAF6EE]/40 mt-2 italic line-clamp-2">
                     {product.description}
@@ -184,7 +195,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                 {/* Price and Add CTA */}
                 <div className="flex items-center gap-3">
                   <div className="text-right">
-                    <span className="text-lg font-serif font-bold text-[#FAF6EE]">
+                    <span className="text-lg font-bold tracking-tight text-[#FAF6EE]">
                       {price}
                     </span>
                     <span className="text-xs text-[#7E9C72] ml-0.5 font-bold">₼</span>

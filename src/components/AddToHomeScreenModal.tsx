@@ -17,7 +17,7 @@ export const AddToHomeScreenModal: React.FC<AddToHomeScreenModalProps> = ({ onCl
               <img src="/assets/mp-logo.png" alt="mp." className="w-full h-full object-contain" />
             </div>
             <div>
-              <h3 className="font-serif font-bold text-sm">
+              <h3 className="font-bold text-sm tracking-tight">
                 MATCHA BAR | MP BAKU
               </h3>
               <p className="text-[11px] text-white/50">

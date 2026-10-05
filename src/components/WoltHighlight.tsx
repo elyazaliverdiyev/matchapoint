@@ -19,7 +19,7 @@ export const WoltHighlight: React.FC = () => {
               <span>Официальная экспресс-доставка Wolt Baku</span>
             </div>
 
-            <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#FAF6EE] leading-tight">
+            <h2 className="text-xl sm:text-3xl font-bold text-[#FAF6EE] leading-tight tracking-tight">
               Заказывайте Матчу и Выпечку прямо к двери
             </h2>
 
@@ -68,7 +68,7 @@ export const WoltHighlight: React.FC = () => {
             </div>
 
             <div>
-              <h3 className="font-serif font-bold text-xl text-[#FAF6EE]">
+              <h3 className="font-bold text-lg text-[#FAF6EE] tracking-tight">
                 MATCHA POINT | BAKU
               </h3>
               <p className="text-xs text-white/50 mt-1">

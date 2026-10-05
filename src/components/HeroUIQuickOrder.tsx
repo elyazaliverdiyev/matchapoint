@@ -120,15 +120,23 @@ export const HeroUIQuickOrder: React.FC<HeroUIQuickOrderProps> = ({
                   : 'bg-white/[0.03] hover:bg-white/[0.06] border-white/10 shadow-sm'
               }`}
             >
-              {/* Left Column: Color Dot + Name + Details */}
+              {/* Left Column: Image or Color Dot + Name + Details */}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <span
-                    className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                    style={{
-                      backgroundColor: product.cupVisual?.bottomColor || (product.category === 'matcha' ? '#7E9C72' : '#E3D7B1')
-                    }}
-                  />
+                  {product.image ? (
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-7 h-7 object-contain rounded flex-shrink-0"
+                    />
+                  ) : (
+                    <span
+                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                      style={{
+                        backgroundColor: product.cupVisual?.bottomColor || (product.category === 'matcha' ? '#7E9C72' : '#E3D7B1')
+                      }}
+                    />
+                  )}
                   <h4 className="font-bold text-xs sm:text-sm text-white truncate">
                     {product.name}
                   </h4>

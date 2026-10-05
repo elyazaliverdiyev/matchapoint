@@ -38,7 +38,7 @@ export const TicketTabContent: React.FC<TicketTabContentProps> = ({
           <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-[#7E9C72]">
             Цифровой талон очереди
           </span>
-          <h2 className="text-2xl font-serif font-bold text-[#FAF6EE]">
+          <h2 className="text-xl font-bold tracking-tight text-[#FAF6EE]">
             Нет активного талона
           </h2>
           <p className="text-xs text-white/60 leading-relaxed font-light">
@@ -132,7 +132,7 @@ export const TicketTabContent: React.FC<TicketTabContentProps> = ({
 
         <div className="my-4 flex items-baseline justify-between">
           <div>
-            <h1 className="text-4xl font-editorial font-black tracking-wider text-[#FAF6EE]">
+            <h1 className="text-3xl font-bold tracking-tight text-[#FAF6EE]">
               {order.id}
             </h1>
             <p className="text-xs text-white/70 mt-1 flex items-center gap-1.5">

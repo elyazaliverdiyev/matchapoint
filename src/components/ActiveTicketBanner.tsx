@@ -54,7 +54,7 @@ export const ActiveTicketBanner: React.FC<ActiveTicketBannerProps> = ({ order, o
           {/* Left badge */}
           <div className="flex items-center gap-2.5 min-w-0">
             <div
-              className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 font-editorial font-black text-sm shadow ${
+              className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-sm shadow ${
                 isReady
                   ? 'bg-black text-[#D4AF37]'
                   : 'bg-[#7E9C72]/20 text-[#A7C09D] border border-[#7E9C72]/40'
@@ -71,7 +71,7 @@ export const ActiveTicketBanner: React.FC<ActiveTicketBannerProps> = ({ order, o
 
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
-                <span className="font-editorial font-bold text-xs tracking-wider">
+                <span className="font-bold text-xs tracking-wider">
                   Талон {order.id}
                 </span>
                 <span className="text-[10px] opacity-70 truncate">

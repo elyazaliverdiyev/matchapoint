@@ -18,7 +18,7 @@ export const WoltView: React.FC = () => {
           </span>
         </div>
 
-        <h2 className="text-2xl font-serif font-bold text-[#FAF6EE] leading-tight">
+        <h2 className="text-xl font-bold tracking-tight text-[#FAF6EE] leading-tight">
           Доставка прямо к вашей двери
         </h2>
 

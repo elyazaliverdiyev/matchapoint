@@ -31,7 +31,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           </div>
           <div className="flex flex-col">
             <div className="flex items-center gap-1.5">
-              <span className="font-editorial text-sm font-black tracking-wider text-[#FAF6EE] leading-none">
+              <span className="font-bold text-sm tracking-tight text-[#FAF6EE] leading-none">
                 MP BAKU
               </span>
               <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#7E9C72]/20 text-[#A7C09D] font-mono font-bold">

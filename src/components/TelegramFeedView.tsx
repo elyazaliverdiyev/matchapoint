@@ -18,7 +18,7 @@ export const TelegramFeedView: React.FC<TelegramFeedViewProps> = ({ posts }) => 
               <Send className="w-3.5 h-3.5" />
             </div>
             <div>
-              <h3 className="font-editorial text-xs font-bold text-white tracking-wider">
+              <h3 className="font-bold text-xs text-white tracking-wide">
                 TELEGRAM LIVE BROADCAST
               </h3>
               <p className="text-[10px] text-white/50">

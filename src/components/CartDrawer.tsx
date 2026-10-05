@@ -65,7 +65,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <ShoppingBag className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-editorial font-bold text-lg">
+              <h3 className="font-bold text-lg tracking-tight">
                 Ваш Заказ
               </h3>
               <p className="text-xs text-white/50">
@@ -256,7 +256,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 Итого к оплате
               </span>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-serif font-bold text-[#FAF6EE]">
+                <span className="text-2xl font-bold tracking-tight text-[#FAF6EE]">
                   {totalAmount}
                 </span>
                 <span className="text-xs font-bold text-[#7E9C72]">₼ AZN</span>

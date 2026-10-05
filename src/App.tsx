@@ -413,7 +413,7 @@ export const App: React.FC = () => {
                   <img src="/assets/mp-logo.png" alt="mp. Baku" className="w-full h-full object-contain" />
                 </div>
                 <div>
-                  <h1 className="font-editorial text-xl font-bold tracking-wider text-[#FAF6EE] leading-none">
+                  <h1 className="font-bold text-xl tracking-tight text-[#FAF6EE] leading-none">
                     MP BAKU
                   </h1>
                   <span className="text-[10px] uppercase tracking-[0.25em] text-[#7E9C72] font-semibold block mt-1">
@@ -423,7 +423,7 @@ export const App: React.FC = () => {
               </div>
 
               <div className="space-y-2 border-l-2 border-[#7E9C72]/40 pl-3">
-                <p className="font-editorial font-bold text-xs uppercase tracking-wider text-white/90">
+                <p className="font-bold text-xs uppercase tracking-wider text-white/90">
                   ALWAYS DRINK MATCHA
                 </p>
                 <p className="text-xs text-white/60 leading-relaxed font-light">

@@ -33,7 +33,7 @@ export const BaristaStopListModal: React.FC<BaristaStopListModalProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
-              <h3 className="font-serif font-bold text-lg text-[#FAF6EE]">
+              <h3 className="font-bold text-base text-[#FAF6EE] tracking-tight">
                 Панель Бариста · Стоп-лист
               </h3>
             </div>

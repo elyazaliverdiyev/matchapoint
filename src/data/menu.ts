@@ -12,7 +12,8 @@ export const PRODUCTS: Product[] = [
     tag: 'Signature / Хит',
     isHero: true,
     temperature: 'iced',
-    mountainBackdrop: 'from-[#381622]/50 via-[#182618]/60 to-[#0B1509]',
+    image: '/drinks/berry-boba.png',
+    mountainBackdrop: 'from-[#381622]/60 via-[#182618]/70 to-[#0B1509]',
     ingredients: [
       { name: 'Fresh Strawberry 🍓', emoji: '🍓', posClass: 'top-4 left-[-10px] sm:left-2' },
       { name: 'Uji Matcha 🍃', emoji: '🍃', posClass: 'top-16 right-[-8px] sm:right-2' },
@@ -147,7 +148,8 @@ export const PRODUCTS: Product[] = [
     tag: 'Biscoff Хит',
     isHero: true,
     temperature: 'iced',
-    mountainBackdrop: 'from-[#351B0D]/60 via-[#192819]/60 to-[#0B1509]',
+    image: '/drinks/lotus-cookie.png',
+    mountainBackdrop: 'from-[#351B0D]/60 via-[#192819]/70 to-[#0B1509]',
     ingredients: [
       { name: 'Lotus Biscoff Crumbs 🍪', emoji: '🍪', posClass: 'top-4 left-[-8px] sm:left-2' },
       { name: 'Speculoos Spread 🍯', emoji: '🍯', posClass: 'top-18 right-[-10px] sm:right-2' },
@@ -201,6 +203,7 @@ export const PRODUCTS: Product[] = [
     tag: 'Классика',
     isHero: false,
     temperature: 'iced',
+    image: '/drinks/iced-latte.png',
     ingredients: [
       { name: 'Madagascar Vanilla 🍦', emoji: '🍦', posClass: 'top-4 left-2' },
       { name: 'Organic Milk 🥛', emoji: '🥛', posClass: 'bottom-6 right-2' },
@@ -311,8 +314,16 @@ export const PRODUCTS: Product[] = [
     description: 'Без сиропов и добавок. Только истинный травянисто-сладкий вкус высшего грейда японской матчи, взбитой бамбуковым венчиком.',
     prices: { M: 9, L: 10 },
     tag: 'Pure Uji',
-    isHero: false,
+    isHero: true,
     temperature: 'iced',
+    image: '/drinks/iced-latte.png',
+    mountainBackdrop: 'from-[#193619]/60 via-[#102212]/70 to-[#0B1509]',
+    ingredients: [
+      { name: 'Pure Ice 🧊', emoji: '🧊', posClass: 'top-4 left-[-10px] sm:left-2' },
+      { name: 'Uji Matcha 🍃', emoji: '🍃', posClass: 'top-18 right-[-8px] sm:right-2' },
+      { name: 'Farm Milk 🥛', emoji: '🥛', posClass: 'bottom-16 left-[-8px] sm:left-2' },
+      { name: 'Cold Whisk 🎋', emoji: '🎋', posClass: 'bottom-6 right-[-10px] sm:right-2' },
+    ],
     cupVisual: {
       topColor: '#385D2E',
       midColor: '#638C56',
@@ -333,12 +344,13 @@ export const PRODUCTS: Product[] = [
     tag: 'Горячий дзен',
     isHero: true,
     temperature: 'hot',
-    mountainBackdrop: 'from-[#282713]/60 via-[#172115]/60 to-[#0B1509]',
+    image: '/drinks/hot-swan.png',
+    mountainBackdrop: 'from-[#2e260f]/60 via-[#182315]/70 to-[#0B1509]',
     ingredients: [
       { name: 'Hot Silk Foam ♨️', emoji: '♨️', posClass: 'top-4 left-[-8px] sm:left-2' },
       { name: 'Chasen Whisk 🍃', emoji: '🍃', posClass: 'top-18 right-[-10px] sm:right-2' },
       { name: 'Warm Milk 🥛', emoji: '🥛', posClass: 'bottom-16 left-[-10px] sm:left-2' },
-      { name: 'Uji Matcha 🍵', emoji: '🍵', posClass: 'bottom-6 right-[-8px] sm:right-2' },
+      { name: 'Swan Art 🦢', emoji: '🦢', posClass: 'bottom-6 right-[-8px] sm:right-2' },
     ],
     cupVisual: {
       topColor: '#4D7B41',

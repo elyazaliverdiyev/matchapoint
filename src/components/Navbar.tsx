@@ -45,7 +45,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               />
             </div>
             <div className="flex flex-col">
-              <span className="font-editorial text-lg sm:text-xl font-bold tracking-wider text-[#FAF6EE] leading-none">
+              <span className="font-bold text-lg sm:text-xl tracking-tight text-[#FAF6EE] leading-none">
                 mp.
               </span>
               <span className="text-[9px] uppercase tracking-[0.25em] text-[#7E9C72] font-semibold mt-0.5">
