@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { PRODUCTS } from './data/menu'
-import { TELEGRAM_POSTS } from './data/telegramFeed'
-import { Product, ProductSize, CartItem, Order, OrderStatus, PaymentMethod } from './types'
+import { TELEGRAM_POSTS as FALLBACK_TELEGRAM_POSTS } from './data/telegramFeed'
+import { Product, ProductSize, CartItem, Order, OrderStatus, PaymentMethod, TelegramPost } from './types'
 import { Navbar } from './components/Navbar'
 import { HeroStage } from './components/HeroStage'
 import { TelegramLiveTicker } from './components/TelegramLiveTicker'
@@ -13,7 +13,15 @@ import { CartDrawer } from './components/CartDrawer'
 import { LiveTicketModal } from './components/LiveTicketModal'
 import { BaristaKDSModal } from './components/BaristaKDSModal'
 import { AddToHomeScreenModal } from './components/AddToHomeScreenModal'
-import { Sparkles, Clock } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
+import { 
+  fetchCloudOrders, 
+  saveCloudOrder, 
+  updateCloudOrderStatus, 
+  fetchCloudTelegramPosts, 
+  publishCloudTelegramPost,
+  subscribeToMatchaUpdates
+} from './lib/supabaseService'
 
 export const App: React.FC = () => {
   // Hero selection state
@@ -30,7 +38,7 @@ export const App: React.FC = () => {
     }
   })
 
-  // Barista Stop-List state persisted to localStorage
+  // Barista Stop-List state
   const [soldOutIds, setSoldOutIds] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('mp_stop_list')
@@ -40,7 +48,7 @@ export const App: React.FC = () => {
     }
   })
 
-  // All Orders (KDS Queue) persisted to localStorage
+  // Orders State (Synced with Supabase & LocalStorage)
   const [orders, setOrders] = useState<Order[]>(() => {
     try {
       const saved = localStorage.getItem('mp_orders')
@@ -59,14 +67,50 @@ export const App: React.FC = () => {
     }
   })
 
+  // Telegram Posts Feed (Synced with Supabase Cloud)
+  const [telegramPosts, setTelegramPosts] = useState<TelegramPost[]>(() => {
+    try {
+      const saved = localStorage.getItem('mp_telegram_posts')
+      return saved ? JSON.parse(saved) : FALLBACK_TELEGRAM_POSTS
+    } catch {
+      return FALLBACK_TELEGRAM_POSTS
+    }
+  })
+
   // Modals state
   const [cartOpen, setCartOpen] = useState(false)
   const [ticketOpen, setTicketOpen] = useState(false)
-  const [kdsOpen, setKdsOpen] = useState(false)
+  const [kdsOpen, setKdsOpen] = useState(() => {
+    // Check if user navigated to /barista or /admin or #barista
+    const path = window.location.pathname.toLowerCase()
+    const hash = window.location.hash.toLowerCase()
+    return path.includes('barista') || path.includes('admin') || hash.includes('barista')
+  })
   const [a2hsOpen, setA2hsOpen] = useState(false)
 
   // Current active order object
   const activeOrder = orders.find((o) => o.id === activeOrderId) || null
+
+  // ── CLOUD SYNC: INITIAL LOAD & SUPABASE REALTIME ──
+  const syncWithCloud = useCallback(async () => {
+    const cloudOrders = await fetchCloudOrders()
+    if (cloudOrders && cloudOrders.length > 0) {
+      setOrders(cloudOrders)
+    }
+
+    const cloudPosts = await fetchCloudTelegramPosts()
+    if (cloudPosts && cloudPosts.length > 0) {
+      setTelegramPosts(cloudPosts)
+    }
+  }, [])
+
+  useEffect(() => {
+    syncWithCloud()
+    const unsubscribe = subscribeToMatchaUpdates(() => {
+      syncWithCloud()
+    })
+    return () => unsubscribe()
+  }, [syncWithCloud])
 
   // Cross-tab synchronization via storage event
   useEffect(() => {
@@ -74,50 +118,48 @@ export const App: React.FC = () => {
       if (e.key === 'mp_orders' && e.newValue) {
         try {
           setOrders(JSON.parse(e.newValue))
-        } catch {
-          // ignore
-        }
+        } catch {}
       }
       if (e.key === 'mp_stop_list' && e.newValue) {
         try {
           setSoldOutIds(JSON.parse(e.newValue))
-        } catch {
-          // ignore
-        }
+        } catch {}
+      }
+      if (e.key === 'mp_telegram_posts' && e.newValue) {
+        try {
+          setTelegramPosts(JSON.parse(e.newValue))
+        } catch {}
       }
     }
     window.addEventListener('storage', handleStorageChange)
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
-  // Persist cart
+  // Persist local storage states
   useEffect(() => {
     try {
       localStorage.setItem('mp_cart', JSON.stringify(cart))
-    } catch (e) {
-      console.error('Failed to save cart', e)
-    }
+    } catch (e) {}
   }, [cart])
 
-  // Persist stop list
   useEffect(() => {
     try {
       localStorage.setItem('mp_stop_list', JSON.stringify(soldOutIds))
-    } catch (e) {
-      console.error('Failed to save stop-list', e)
-    }
+    } catch (e) {}
   }, [soldOutIds])
 
-  // Persist orders
   useEffect(() => {
     try {
       localStorage.setItem('mp_orders', JSON.stringify(orders))
-    } catch (e) {
-      console.error('Failed to save orders', e)
-    }
+    } catch (e) {}
   }, [orders])
 
-  // Persist active order ID
+  useEffect(() => {
+    try {
+      localStorage.setItem('mp_telegram_posts', JSON.stringify(telegramPosts))
+    } catch (e) {}
+  }, [telegramPosts])
+
   useEffect(() => {
     try {
       if (activeOrderId) {
@@ -125,9 +167,7 @@ export const App: React.FC = () => {
       } else {
         localStorage.removeItem('mp_active_order_id')
       }
-    } catch (e) {
-      console.error('Failed to save active order id', e)
-    }
+    } catch (e) {}
   }, [activeOrderId])
 
   // Check store open status (Baku time UTC+4)
@@ -199,8 +239,8 @@ export const App: React.FC = () => {
     setCart([])
   }
 
-  // CHECKOUT HANDLER: Create benchmark Order & Live Ticket
-  const handleCheckout = (
+  // CHECKOUT: Create benchmark order & save to Supabase cloud
+  const handleCheckout = async (
     customerName: string,
     orderType: 'takeaway' | 'dinein',
     paymentMethod: PaymentMethod
@@ -209,7 +249,6 @@ export const App: React.FC = () => {
 
     const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
     
-    // Sequential ticket counter
     const nextNum = (orders.length > 0 ? Math.max(...orders.map((o) => o.ticketNumber || 0)) : 0) + 1
     const orderId = `#MP-${String(nextNum).padStart(2, '0')}`
 
@@ -238,16 +277,21 @@ export const App: React.FC = () => {
     setCart([])
     setCartOpen(false)
     setTicketOpen(true)
+
+    // Save to Supabase Cloud in background
+    saveCloudOrder(newOrder).catch(() => {})
   }
 
-  // Update order status from Barista KDS
+  // Barista updates order status
   const handleUpdateOrderStatus = (orderId: string, newStatus: OrderStatus) => {
     setOrders((prev) =>
       prev.map((ord) => (ord.id === orderId ? { ...ord, status: newStatus } : ord))
     )
+    // Cloud sync
+    updateCloudOrderStatus(orderId, newStatus).catch(() => {})
   }
 
-  // Create demo order for quick testing
+  // Create demo order for test
   const handleCreateDemoOrder = () => {
     const nextNum = (orders.length > 0 ? Math.max(...orders.map((o) => o.ticketNumber || 0)) : 0) + 1
     const orderId = `#MP-${String(nextNum).padStart(2, '0')}`
@@ -288,9 +332,18 @@ export const App: React.FC = () => {
 
     setOrders((prev) => [demoOrder, ...prev])
     setActiveOrderId(orderId)
+    saveCloudOrder(demoOrder).catch(() => {})
   }
 
-  // Barista stop-list toggle
+  // Barista publishes new Telegram Broadcast
+  const handlePublishTelegramPost = async (text: string, badge?: string, isUrgent?: boolean) => {
+    const newPost = await publishCloudTelegramPost({ text, badge, isUrgent })
+    if (newPost) {
+      setTelegramPosts((prev) => [newPost, ...prev])
+    }
+  }
+
+  // Stop-list toggle
   const handleToggleSoldOut = (productId: string) => {
     setSoldOutIds((prev) =>
       prev.includes(productId)
@@ -331,7 +384,7 @@ export const App: React.FC = () => {
         />
 
         {/* ── 2. LIVE TELEGRAM BROADCAST STRIP ── */}
-        <TelegramLiveTicker posts={TELEGRAM_POSTS} />
+        <TelegramLiveTicker posts={telegramPosts} />
 
         {/* ── 3. FULL EDITORIAL MENU SECTION ── */}
         <MenuSection
@@ -373,15 +426,17 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* Barista KDS (Queue & Stop-List) Console */}
+      {/* Barista KDS (Queue & Stop-List & Telegram Dispatcher) Console */}
       {kdsOpen && (
         <BaristaKDSModal
           orders={orders}
           products={PRODUCTS}
           soldOutIds={soldOutIds}
+          telegramPosts={telegramPosts}
           onUpdateOrderStatus={handleUpdateOrderStatus}
           onToggleSoldOut={handleToggleSoldOut}
           onResetStopList={handleResetStopList}
+          onPublishTelegramPost={handlePublishTelegramPost}
           onCreateDemoOrder={handleCreateDemoOrder}
           onClose={() => setKdsOpen(false)}
         />

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Order, OrderStatus, Product } from '../types'
+import { Order, OrderStatus, Product, TelegramPost } from '../types'
 import { 
   X, 
   Search, 
@@ -12,7 +12,11 @@ import {
   Sliders, 
   Volume2, 
   PlusCircle,
-  QrCode
+  QrCode,
+  Send,
+  Radio,
+  ExternalLink,
+  MessageSquare
 } from 'lucide-react'
 import { playOrderReadySound, playTapSound } from '../lib/audio'
 
@@ -20,9 +24,11 @@ interface BaristaKDSModalProps {
   orders: Order[]
   products: Product[]
   soldOutIds: string[]
+  telegramPosts: TelegramPost[]
   onUpdateOrderStatus: (orderId: string, newStatus: OrderStatus) => void
   onToggleSoldOut: (productId: string) => void
   onResetStopList: () => void
+  onPublishTelegramPost: (text: string, badge?: string, isUrgent?: boolean) => void
   onCreateDemoOrder?: () => void
   onClose: () => void
 }
@@ -31,14 +37,22 @@ export const BaristaKDSModal: React.FC<BaristaKDSModalProps> = ({
   orders,
   products,
   soldOutIds,
+  telegramPosts,
   onUpdateOrderStatus,
   onToggleSoldOut,
   onResetStopList,
+  onPublishTelegramPost,
   onCreateDemoOrder,
   onClose,
 }) => {
-  const [activeTab, setActiveTab] = useState<'kds' | 'stoplist'>('kds')
+  const [activeTab, setActiveTab] = useState<'kds' | 'stoplist' | 'telegram'>('kds')
   const [searchTerm, setSearchTerm] = useState('')
+  
+  // Telegram composer state
+  const [newPostText, setNewPostText] = useState('')
+  const [newPostBadge, setNewPostBadge] = useState('In Stock')
+  const [newPostUrgent, setNewPostUrgent] = useState(false)
+  const [postSuccess, setPostSuccess] = useState(false)
 
   // Orders filtered
   const activeOrders = orders.filter((o) => o.status !== 'completed' && o.status !== 'cancelled')
@@ -61,22 +75,37 @@ export const BaristaKDSModal: React.FC<BaristaKDSModalProps> = ({
     onUpdateOrderStatus(orderId, status)
   }
 
+  const handlePublishPost = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newPostText.trim()) return
+
+    onPublishTelegramPost(newPostText.trim(), newPostBadge, newPostUrgent)
+    setNewPostText('')
+    setPostSuccess(true)
+    setTimeout(() => setPostSuccess(false), 2500)
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-      <div className="w-full max-w-4xl max-h-[90vh] bg-[#0A140B] border border-white/20 rounded-3xl flex flex-col shadow-2xl text-[#FAF6EE] overflow-hidden">
+      <div className="w-full max-w-4xl max-h-[92vh] bg-[#0A140B] border border-white/20 rounded-3xl flex flex-col shadow-2xl text-[#FAF6EE] overflow-hidden">
         
-        {/* Top Navbar of the KDS Modal */}
+        {/* Top Navbar */}
         <div className="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between bg-black/30">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-[#7E9C72]/20 flex items-center justify-center text-[#7E9C72] font-bold">
               mp.
             </div>
             <div>
-              <h2 className="font-editorial text-base sm:text-lg font-bold">
-                Панель Управления Бариста · MP KDS
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="font-editorial text-base sm:text-lg font-bold">
+                  Панель Управления Бариста · MP KDS
+                </h2>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold">
+                  Online
+                </span>
+              </div>
               <p className="text-[11px] text-white/50">
-                Живая очередь заказов, подтверждение NFC и стоп-лист
+                Заказы NFC, экран кухни, стоп-лист и прямая трансляция из Telegram
               </p>
             </div>
           </div>
@@ -85,7 +114,7 @@ export const BaristaKDSModal: React.FC<BaristaKDSModalProps> = ({
             {/* Audio Test */}
             <button
               onClick={() => playOrderReadySound()}
-              title="Тест звукового колокольчика готовности"
+              title="Тест колокольчика готовности"
               className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-white/70 hover:text-white transition-colors cursor-pointer"
             >
               <Volume2 className="w-4 h-4 text-[#7E9C72]" />
@@ -102,7 +131,7 @@ export const BaristaKDSModal: React.FC<BaristaKDSModalProps> = ({
         </div>
 
         {/* Tab Switcher */}
-        <div className="px-5 pt-3 border-b border-white/10 flex items-center justify-between bg-black/20">
+        <div className="px-5 pt-3 border-b border-white/10 flex flex-wrap items-center justify-between gap-2 bg-black/20">
           <div className="flex gap-2">
             <button
               onClick={() => setActiveTab('kds')}
@@ -115,6 +144,7 @@ export const BaristaKDSModal: React.FC<BaristaKDSModalProps> = ({
               <Coffee className="w-3.5 h-3.5" />
               <span>Очередь заказов ({activeOrders.length})</span>
             </button>
+
             <button
               onClick={() => setActiveTab('stoplist')}
               className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
@@ -125,6 +155,18 @@ export const BaristaKDSModal: React.FC<BaristaKDSModalProps> = ({
             >
               <Sliders className="w-3.5 h-3.5" />
               <span>Стоп-лист ({soldOutIds.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('telegram')}
+              className={`px-4 py-2.5 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-2 ${
+                activeTab === 'telegram'
+                  ? 'border-[#2AABEE] text-[#FAF6EE]'
+                  : 'border-transparent text-white/40 hover:text-white/70'
+              }`}
+            >
+              <Send className="w-3.5 h-3.5 text-[#2AABEE]" />
+              <span>Telegram Сводки ({telegramPosts.length})</span>
             </button>
           </div>
 
@@ -408,9 +450,128 @@ export const BaristaKDSModal: React.FC<BaristaKDSModalProps> = ({
           </div>
         )}
 
+        {/* TAB 3: TELEGRAM POSTS DISPATCHER */}
+        {activeTab === 'telegram' && (
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 no-scrollbar space-y-6">
+            
+            {/* Quick Composer for the Owner */}
+            <form onSubmit={handlePublishPost} className="p-4 sm:p-5 rounded-2xl bg-black/40 border border-white/10 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-wider font-bold text-[#2AABEE] flex items-center gap-1.5">
+                  <Send className="w-3.5 h-3.5" />
+                  Опубликовать оперативное сообщение из Telegram
+                </span>
+                <span className="text-[10px] text-white/40">
+                  Мгновенно появится на бегущей строке сайта
+                </span>
+              </div>
+
+              <textarea
+                rows={2}
+                placeholder="Например: Surprise Box доступен на Wolt! Или: Синнабоны закончились, осталась пицца..."
+                value={newPostText}
+                onChange={(e) => setNewPostText(e.target.value)}
+                className="w-full p-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-[#2AABEE]"
+              />
+
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                {/* Badge selector */}
+                <div className="flex items-center gap-1.5 text-xs">
+                  <span className="text-white/50 text-[11px]">Бейдж:</span>
+                  {['In Stock', 'Wolt Box', 'Sold Out Alert', 'New Pastry'].map((badge) => (
+                    <button
+                      key={badge}
+                      type="button"
+                      onClick={() => setNewPostBadge(badge)}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                        newPostBadge === badge
+                          ? 'bg-[#2AABEE] text-white'
+                          : 'bg-white/5 text-white/60 hover:text-white'
+                      }`}
+                    >
+                      {badge}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-1.5 text-xs text-white/70 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={newPostUrgent}
+                      onChange={(e) => setNewPostUrgent(e.target.checked)}
+                      className="rounded accent-rose-500"
+                    />
+                    <span className="text-[11px]">Срочно (выделить)</span>
+                  </label>
+
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-xl bg-[#2AABEE] hover:bg-[#2095d3] text-white font-bold text-xs uppercase flex items-center gap-1.5 transition-all shadow cursor-pointer active:scale-95"
+                  >
+                    <Send className="w-3 h-3" />
+                    <span>Опубликовать на сайт</span>
+                  </button>
+                </div>
+              </div>
+
+              {postSuccess && (
+                <div className="p-2 rounded-lg bg-emerald-950/80 border border-emerald-700 text-emerald-300 text-xs text-center">
+                  ✓ Пост опубликован и транслируется в реальном времени!
+                </div>
+              )}
+            </form>
+
+            {/* List of existing posts */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs text-white/50 px-1">
+                <span>Лента сообщений бара ({telegramPosts.length})</span>
+                <a
+                  href="https://t.me/+tbdweAM1P0ExMWNi"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#2AABEE] hover:underline flex items-center gap-1"
+                >
+                  <span>Открыть канал t.me/matchapoint</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+
+              <div className="space-y-2">
+                {telegramPosts.map((post) => (
+                  <div
+                    key={post.id}
+                    className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 flex items-start justify-between gap-3"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-[#A7C09D]">
+                          {post.author}
+                        </span>
+                        <span className="text-[10px] text-white/40">
+                          {post.timestamp}
+                        </span>
+                        {post.badge && (
+                          <span className="text-[9px] px-1.5 py-0.2 rounded bg-white/10 text-[#7E9C72] font-bold">
+                            {post.badge}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-white/80 leading-relaxed">
+                        {post.text}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        )}
+
         {/* Footer */}
         <div className="p-4 border-t border-white/10 flex items-center justify-between bg-black/40 text-xs text-white/40">
-          <span>Синхронизация заказов: Активна</span>
+          <span>Синхронизация Supabase & Telegram: Активна</span>
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-xl bg-white text-black font-bold text-xs uppercase cursor-pointer hover:bg-white/90"
