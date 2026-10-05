@@ -18,6 +18,7 @@ import { CartDrawer } from './components/CartDrawer'
 import { LiveTicketModal } from './components/LiveTicketModal'
 import { BaristaKDSModal } from './components/BaristaKDSModal'
 import { AddToHomeScreenModal } from './components/AddToHomeScreenModal'
+import { HeroUIQuickOrder } from './components/HeroUIQuickOrder'
 import { 
   Sparkles, 
   Smartphone, 
@@ -46,6 +47,9 @@ export const App: React.FC = () => {
 
   // Active Bottom Tab
   const [activeTab, setActiveTab] = useState<TabType>('menu')
+
+  // Menu presentation mode: Kumo showcase vs HeroUI quick order
+  const [menuViewMode, setMenuViewMode] = useState<'kumo' | 'quick'>('kumo')
 
   // Hero selection state
   const heroDrinks = PRODUCTS.filter((p) => p.isHero)
@@ -516,24 +520,68 @@ export const App: React.FC = () => {
             {/* 1. MENU TAB */}
             {activeTab === 'menu' && (
               <div className="space-y-4">
-                {/* Hero Cup Stage */}
-                <HeroStage
-                  heroDrinks={heroDrinks}
-                  activeDrink={activeDrink}
-                  onSelectDrink={(drink) => setActiveDrink(drink)}
-                  onAddToCart={handleAddToCart}
-                  isSoldOut={isSoldOut}
-                />
+                
+                {/* ── HEROUI MODE SWITCHER (KUMO VS QUICK) ── */}
+                <div className="px-3 pt-3">
+                  <div className="bg-black/60 p-1 rounded-2xl border border-white/10 flex items-center justify-between text-xs shadow-inner">
+                    <button
+                      onClick={() => {
+                        playTapSound()
+                        setMenuViewMode('kumo')
+                      }}
+                      className={`flex-1 py-1.5 rounded-xl font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                        menuViewMode === 'kumo'
+                          ? 'bg-[#7E9C72] text-[#0B1509] shadow'
+                          : 'text-white/60 hover:text-white'
+                      }`}
+                    >
+                      <span>🍵 Kumo Шоукейс</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        playTapSound()
+                        setMenuViewMode('quick')
+                      }}
+                      className={`flex-1 py-1.5 rounded-xl font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                        menuViewMode === 'quick'
+                          ? 'bg-[#FAF6EE] text-[#0B1509] shadow'
+                          : 'text-white/60 hover:text-white'
+                      }`}
+                    >
+                      <span>⚡ HeroUI Быстрый заказ</span>
+                    </button>
+                  </div>
+                </div>
 
-                {/* Telegram Live Barista Broadcast Strip */}
-                <TelegramLiveTicker posts={telegramPosts} />
+                {menuViewMode === 'kumo' ? (
+                  <>
+                    {/* Hero Cup on Zen Mountain Pedestal */}
+                    <HeroStage
+                      heroDrinks={heroDrinks}
+                      activeDrink={activeDrink}
+                      onSelectDrink={(drink) => setActiveDrink(drink)}
+                      onAddToCart={handleAddToCart}
+                      isSoldOut={isSoldOut}
+                    />
 
-                {/* Full Categorized Menu */}
-                <MenuSection
-                  products={PRODUCTS}
-                  onAddToCart={handleAddToCart}
-                  isSoldOut={isSoldOut}
-                />
+                    {/* Telegram Live Barista Broadcast Strip */}
+                    <TelegramLiveTicker posts={telegramPosts} />
+
+                    {/* Full Categorized Menu */}
+                    <MenuSection
+                      products={PRODUCTS}
+                      onAddToCart={handleAddToCart}
+                      isSoldOut={isSoldOut}
+                    />
+                  </>
+                ) : (
+                  /* HeroUI / iPhone Ultra-Clean Quick List */
+                  <HeroUIQuickOrder
+                    products={PRODUCTS}
+                    onAddToCart={handleAddToCart}
+                    isSoldOut={isSoldOut}
+                  />
+                )}
 
                 {/* Location, Schedule & Map */}
                 <LocationHours />

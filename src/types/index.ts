@@ -35,6 +35,8 @@ export interface Product {
   }
   tag?: string
   isHero?: boolean
+  temperature?: 'iced' | 'hot'
+  mountainBackdrop?: string
   ingredients?: IngredientSatellite[]
   cupVisual?: CupVisualLayer
   image?: string
