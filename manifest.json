@@ -1,0 +1,22 @@
+{
+  "name": "MATCHA BAR | MP BAKU",
+  "short_name": "MP Baku",
+  "description": "Specialty matcha & fresh daily pastries in Baku, Azerbaijan.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B1509",
+  "theme_color": "#0B1509",
+  "icons": [
+    {
+      "src": "/assets/mp-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/mp-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
