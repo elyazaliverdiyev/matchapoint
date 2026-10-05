@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { PRODUCTS } from './data/menu'
 import { TELEGRAM_POSTS } from './data/telegramFeed'
-import { Product, ProductSize, CartItem } from './types'
+import { Product, ProductSize, CartItem, Order, OrderStatus, PaymentMethod } from './types'
 import { Navbar } from './components/Navbar'
 import { HeroStage } from './components/HeroStage'
 import { TelegramLiveTicker } from './components/TelegramLiveTicker'
@@ -10,8 +10,10 @@ import { WoltHighlight } from './components/WoltHighlight'
 import { LocationHours } from './components/LocationHours'
 import { Footer } from './components/Footer'
 import { CartDrawer } from './components/CartDrawer'
-import { BaristaStopListModal } from './components/BaristaStopListModal'
+import { LiveTicketModal } from './components/LiveTicketModal'
+import { BaristaKDSModal } from './components/BaristaKDSModal'
 import { AddToHomeScreenModal } from './components/AddToHomeScreenModal'
+import { Sparkles, Clock } from 'lucide-react'
 
 export const App: React.FC = () => {
   // Hero selection state
@@ -38,17 +40,62 @@ export const App: React.FC = () => {
     }
   })
 
+  // All Orders (KDS Queue) persisted to localStorage
+  const [orders, setOrders] = useState<Order[]>(() => {
+    try {
+      const saved = localStorage.getItem('mp_orders')
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
+  })
+
+  // Current customer active order ID
+  const [activeOrderId, setActiveOrderId] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem('mp_active_order_id') || null
+    } catch {
+      return null
+    }
+  })
+
   // Modals state
   const [cartOpen, setCartOpen] = useState(false)
-  const [stopListOpen, setStopListOpen] = useState(false)
+  const [ticketOpen, setTicketOpen] = useState(false)
+  const [kdsOpen, setKdsOpen] = useState(false)
   const [a2hsOpen, setA2hsOpen] = useState(false)
+
+  // Current active order object
+  const activeOrder = orders.find((o) => o.id === activeOrderId) || null
+
+  // Cross-tab synchronization via storage event
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'mp_orders' && e.newValue) {
+        try {
+          setOrders(JSON.parse(e.newValue))
+        } catch {
+          // ignore
+        }
+      }
+      if (e.key === 'mp_stop_list' && e.newValue) {
+        try {
+          setSoldOutIds(JSON.parse(e.newValue))
+        } catch {
+          // ignore
+        }
+      }
+    }
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [])
 
   // Persist cart
   useEffect(() => {
     try {
       localStorage.setItem('mp_cart', JSON.stringify(cart))
     } catch (e) {
-      console.error('Failed to save cart to localStorage', e)
+      console.error('Failed to save cart', e)
     }
   }, [cart])
 
@@ -57,14 +104,35 @@ export const App: React.FC = () => {
     try {
       localStorage.setItem('mp_stop_list', JSON.stringify(soldOutIds))
     } catch (e) {
-      console.error('Failed to save stop-list to localStorage', e)
+      console.error('Failed to save stop-list', e)
     }
   }, [soldOutIds])
 
-  // Check if store is currently open (Wed=3, Sat=6, Sun=0, between 14:00 and 21:00 Baku time UTC+4)
+  // Persist orders
+  useEffect(() => {
+    try {
+      localStorage.setItem('mp_orders', JSON.stringify(orders))
+    } catch (e) {
+      console.error('Failed to save orders', e)
+    }
+  }, [orders])
+
+  // Persist active order ID
+  useEffect(() => {
+    try {
+      if (activeOrderId) {
+        localStorage.setItem('mp_active_order_id', activeOrderId)
+      } else {
+        localStorage.removeItem('mp_active_order_id')
+      }
+    } catch (e) {
+      console.error('Failed to save active order id', e)
+    }
+  }, [activeOrderId])
+
+  // Check store open status (Baku time UTC+4)
   const checkStoreOpen = (): boolean => {
     const now = new Date()
-    // Baku is UTC+4
     const utcHours = now.getUTCHours()
     const bakuHours = (utcHours + 4) % 24
     const day = now.getUTCDay()
@@ -74,7 +142,7 @@ export const App: React.FC = () => {
 
   const isStoreOpen = checkStoreOpen()
 
-  // Add to cart handler
+  // Add item to cart
   const handleAddToCart = (product: Product, size: ProductSize) => {
     if (soldOutIds.includes(product.id)) return
 
@@ -109,7 +177,6 @@ export const App: React.FC = () => {
     })
   }
 
-  // Update item quantity in cart
   const handleUpdateQuantity = (compositeId: string, delta: number) => {
     setCart((prev) =>
       prev
@@ -132,6 +199,97 @@ export const App: React.FC = () => {
     setCart([])
   }
 
+  // CHECKOUT HANDLER: Create benchmark Order & Live Ticket
+  const handleCheckout = (
+    customerName: string,
+    orderType: 'takeaway' | 'dinein',
+    paymentMethod: PaymentMethod
+  ) => {
+    if (cart.length === 0) return
+
+    const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    
+    // Sequential ticket counter
+    const nextNum = (orders.length > 0 ? Math.max(...orders.map((o) => o.ticketNumber || 0)) : 0) + 1
+    const orderId = `#MP-${String(nextNum).padStart(2, '0')}`
+
+    const activePreparingCount = orders.filter((o) => o.status === 'preparing' || o.status === 'paid').length
+    const estimatedMinutes = 3 + activePreparingCount * 2
+
+    const now = new Date()
+    const hours = String(now.getHours()).padStart(2, '0')
+    const mins = String(now.getMinutes()).padStart(2, '0')
+
+    const newOrder: Order = {
+      id: orderId,
+      ticketNumber: nextNum,
+      createdAt: `${hours}:${mins}`,
+      customerName,
+      orderType,
+      paymentMethod,
+      items: [...cart],
+      totalAmount,
+      status: 'pending_payment',
+      estimatedMinutes,
+    }
+
+    setOrders((prev) => [newOrder, ...prev])
+    setActiveOrderId(orderId)
+    setCart([])
+    setCartOpen(false)
+    setTicketOpen(true)
+  }
+
+  // Update order status from Barista KDS
+  const handleUpdateOrderStatus = (orderId: string, newStatus: OrderStatus) => {
+    setOrders((prev) =>
+      prev.map((ord) => (ord.id === orderId ? { ...ord, status: newStatus } : ord))
+    )
+  }
+
+  // Create demo order for quick testing
+  const handleCreateDemoOrder = () => {
+    const nextNum = (orders.length > 0 ? Math.max(...orders.map((o) => o.ticketNumber || 0)) : 0) + 1
+    const orderId = `#MP-${String(nextNum).padStart(2, '0')}`
+    
+    const now = new Date()
+    const hours = String(now.getHours()).padStart(2, '0')
+    const mins = String(now.getMinutes()).padStart(2, '0')
+
+    const demoOrder: Order = {
+      id: orderId,
+      ticketNumber: nextNum,
+      createdAt: `${hours}:${mins}`,
+      customerName: 'Лейла М.',
+      orderType: 'takeaway',
+      paymentMethod: 'nfc_tap',
+      items: [
+        {
+          id: 'berry-boba-M',
+          productId: 'berry-boba',
+          name: 'Berry Boba Matcha',
+          size: 'M',
+          price: 9,
+          quantity: 1,
+        },
+        {
+          id: 'matcha-bon-standard',
+          productId: 'matcha-bon',
+          name: 'Matcha Bon',
+          size: 'standard',
+          price: 8,
+          quantity: 1,
+        },
+      ],
+      totalAmount: 17,
+      status: 'pending_payment',
+      estimatedMinutes: 4,
+    }
+
+    setOrders((prev) => [demoOrder, ...prev])
+    setActiveOrderId(orderId)
+  }
+
   // Barista stop-list toggle
   const handleToggleSoldOut = (productId: string) => {
     setSoldOutIds((prev) =>
@@ -152,11 +310,13 @@ export const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#0B1509] text-[#FAF6EE] selection:bg-[#7E9C72] selection:text-[#0B1509] relative">
       
-      {/* ── STICKY TOP NAVBAR ── */}
+      {/* ── TOP NAVBAR ── */}
       <Navbar
         cartCount={cartTotalCount}
+        activeOrder={activeOrder}
         onOpenCart={() => setCartOpen(true)}
-        onOpenStopList={() => setStopListOpen(true)}
+        onOpenTicket={() => setTicketOpen(true)}
+        onOpenStopList={() => setKdsOpen(true)}
         isStoreOpen={isStoreOpen}
       />
 
@@ -191,28 +351,73 @@ export const App: React.FC = () => {
       <Footer />
 
       {/* ── MODALS & DRAWERS ── */}
+
+      {/* Cart Drawer */}
       {cartOpen && (
         <CartDrawer
           items={cart}
           onUpdateQuantity={handleUpdateQuantity}
           onRemoveItem={handleRemoveItem}
           onClearCart={handleClearCart}
+          onCheckout={handleCheckout}
           onClose={() => setCartOpen(false)}
         />
       )}
 
-      {stopListOpen && (
-        <BaristaStopListModal
-          products={PRODUCTS}
-          soldOutIds={soldOutIds}
-          onToggleSoldOut={handleToggleSoldOut}
-          onResetStopList={handleResetStopList}
-          onClose={() => setStopListOpen(false)}
+      {/* Customer Live Digital Ticket Modal */}
+      {ticketOpen && activeOrder && (
+        <LiveTicketModal
+          order={activeOrder}
+          onClose={() => setTicketOpen(false)}
+          onMinimize={() => setTicketOpen(false)}
         />
       )}
 
+      {/* Barista KDS (Queue & Stop-List) Console */}
+      {kdsOpen && (
+        <BaristaKDSModal
+          orders={orders}
+          products={PRODUCTS}
+          soldOutIds={soldOutIds}
+          onUpdateOrderStatus={handleUpdateOrderStatus}
+          onToggleSoldOut={handleToggleSoldOut}
+          onResetStopList={handleResetStopList}
+          onCreateDemoOrder={handleCreateDemoOrder}
+          onClose={() => setKdsOpen(false)}
+        />
+      )}
+
+      {/* PWA Add to Home Screen Modal */}
       {a2hsOpen && (
         <AddToHomeScreenModal onClose={() => setA2hsOpen(false)} />
+      )}
+
+      {/* ── FLOATING LIVE TICKET TRACKER PILL (Bottom Right) ── */}
+      {activeOrder && !ticketOpen && (
+        <div className="fixed bottom-5 right-4 sm:right-6 z-40 animate-fade-in">
+          <button
+            onClick={() => setTicketOpen(true)}
+            className={`px-4 py-2.5 rounded-full border shadow-2xl flex items-center gap-2.5 backdrop-blur-md transition-all cursor-pointer active:scale-95 ${
+              activeOrder.status === 'ready'
+                ? 'bg-[#D4AF37] text-black border-white animate-bounce'
+                : 'bg-[#0E1B0F]/90 text-white border-[#7E9C72]/50 hover:border-[#7E9C72]'
+            }`}
+          >
+            <Sparkles className={`w-4 h-4 ${activeOrder.status === 'ready' ? 'text-black' : 'text-[#D4AF37]'}`} />
+            <div className="text-left">
+              <span className="font-editorial font-bold text-xs block leading-none">
+                Талон {activeOrder.id}
+              </span>
+              <span className="text-[10px] opacity-70 block mt-0.5">
+                {activeOrder.status === 'pending_payment' && 'Ожидает оплаты'}
+                {activeOrder.status === 'paid' && 'Оплачен · В очереди'}
+                {activeOrder.status === 'preparing' && 'Взбивается 🍵'}
+                {activeOrder.status === 'ready' && 'ГОТОВ К ВЫДАЧЕ! ✨'}
+                {activeOrder.status === 'completed' && 'Выдан'}
+              </span>
+            </div>
+          </button>
+        </div>
       )}
 
       {/* Floating PWA / Install Pill for mobile users */}

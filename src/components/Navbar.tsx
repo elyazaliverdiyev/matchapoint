@@ -1,5 +1,6 @@
 import React from 'react'
-import { ShoppingBag, Sliders, ExternalLink, Send } from 'lucide-react'
+import { ShoppingBag, Sliders, ExternalLink, Send, Sparkles } from 'lucide-react'
+import { Order } from '../types'
 
 const InstagramIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -11,14 +12,18 @@ const InstagramIcon: React.FC<{ className?: string }> = ({ className }) => (
 
 interface NavbarProps {
   cartCount: number
+  activeOrder?: Order | null
   onOpenCart: () => void
+  onOpenTicket?: () => void
   onOpenStopList: () => void
   isStoreOpen: boolean
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   cartCount,
+  activeOrder,
   onOpenCart,
+  onOpenTicket,
   onOpenStopList,
   isStoreOpen,
 }) => {
@@ -35,7 +40,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                 alt="mp. Baku" 
                 className="w-full h-full object-contain"
                 onError={(e) => {
-                  // Fallback to text if image is not loaded
                   (e.target as HTMLElement).style.display = 'none'
                 }}
               />
@@ -70,6 +74,22 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Action icons & controls */}
         <div className="flex items-center gap-2 sm:gap-3">
+          
+          {/* Active Order Live Ticket Pill (if customer has active order) */}
+          {activeOrder && onOpenTicket && (
+            <button
+              onClick={onOpenTicket}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shadow-md ${
+                activeOrder.status === 'ready'
+                  ? 'bg-[#D4AF37] text-black animate-bounce'
+                  : 'bg-[#D4AF37]/20 border border-[#D4AF37]/50 text-[#FAF6EE] animate-pulse'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Талон {activeOrder.id}</span>
+            </button>
+          )}
+
           {/* Telegram Channel link */}
           <a
             href="https://t.me/+tbdweAM1P0ExMWNi"
@@ -92,14 +112,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             <InstagramIcon className="w-4 h-4 text-[#E1306C]" />
           </a>
 
-          {/* Barista Stop-List Toggle */}
+          {/* Barista KDS Console Button */}
           <button
             onClick={onOpenStopList}
-            title="Стоп-лист бариста (наличие блюд)"
+            title="Панель Бариста (KDS заказы и стоп-лист)"
             className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/15 text-xs text-[#A7C09D] border border-white/10 transition-all cursor-pointer"
           >
             <Sliders className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Стоп-лист</span>
+            <span className="hidden sm:inline">Бариста KDS</span>
           </button>
 
           {/* Cart button with floating badge */}
