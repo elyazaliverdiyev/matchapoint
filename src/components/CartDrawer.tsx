@@ -52,11 +52,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/80 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-md h-full bg-[#0E1A0C] border-l border-white/10 flex flex-col shadow-2xl p-5 sm:p-6 text-[#FAF6EE]">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/85 backdrop-blur-md animate-fade-in p-0 sm:p-4">
+      <div className="w-full max-w-[440px] max-h-[92vh] bg-[#0E1A0C] border-t sm:border border-white/15 rounded-t-[36px] sm:rounded-3xl flex flex-col shadow-2xl p-4 sm:p-6 text-[#FAF6EE] overflow-hidden">
         
+        {/* Mobile Swipe Handle */}
+        <div className="w-12 h-1.5 rounded-full bg-white/20 mx-auto mb-3 sm:hidden flex-shrink-0" />
+
         {/* Drawer Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-white/10">
+        <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-white/10 flex-shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-full bg-[#7E9C72]/20 flex items-center justify-center text-[#7E9C72]">
               <ShoppingBag className="w-4 h-4" />

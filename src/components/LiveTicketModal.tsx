@@ -80,8 +80,11 @@ export const LiveTicketModal: React.FC<LiveTicketModalProps> = ({
   const isCompleted = order.status === 'completed'
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-      <div className="w-full max-w-md max-h-[92vh] overflow-y-auto no-scrollbar rounded-3xl bg-[#0D180E] border border-white/20 shadow-2xl text-[#FAF6EE] flex flex-col relative">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-fade-in">
+      <div className="w-full max-w-[440px] max-h-[92vh] overflow-y-auto no-scrollbar rounded-t-[36px] sm:rounded-3xl bg-[#0D180E] border-t sm:border border-white/20 shadow-2xl text-[#FAF6EE] flex flex-col relative">
+        
+        {/* Swipe Handle for mobile */}
+        <div className="w-12 h-1.5 rounded-full bg-white/20 mx-auto mt-3 sm:hidden flex-shrink-0" />
         
         {/* Ambient Top Glow */}
         <div className={`absolute top-0 left-0 right-0 h-40 pointer-events-none rounded-t-3xl transition-all duration-700 ${

@@ -42,36 +42,36 @@ export const HeroStage: React.FC<HeroStageProps> = ({
   }
 
   return (
-    <section id="hero" className="relative min-h-[95vh] w-full pt-20 pb-8 flex flex-col justify-between overflow-hidden bg-gradient-to-b from-[#0B1509] via-[#112110] to-[#0B1509]">
+    <section id="hero" className="relative w-full pt-4 sm:pt-6 pb-6 flex flex-col justify-between overflow-hidden bg-gradient-to-b from-[#0B1509] via-[#112110] to-[#0B1509]">
       
       {/* ── 1. MIDORI: KINETIC EDITORIAL WATERMARK TYPOGRAPHY ── */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden">
-        <span className="text-[19vw] font-editorial font-black uppercase tracking-tighter text-white/[0.03] whitespace-nowrap leading-none transform -rotate-1">
+        <span className="text-[18vw] sm:text-[14vw] font-editorial font-black uppercase tracking-tighter text-white/[0.03] whitespace-nowrap leading-none transform -rotate-1">
           ALWAYS DRINK MATCHA
         </span>
       </div>
 
       {/* Ambient background matcha light aura */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[560px] h-[340px] sm:h-[560px] rounded-full bg-[#5A7D4D]/15 blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full bg-[#5A7D4D]/15 blur-[100px] pointer-events-none" />
 
       {/* ── 2. HEADER STATEMENT & PRODUCT TITLES ── */}
-      <div className="relative z-10 text-center px-4 pt-4 sm:pt-6">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-3">
-          <Sparkles className="w-3.5 h-3.5 text-[#7E9C72]" />
-          <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-[#A7C09D] font-medium">
-            MP BAKU · SPECIALTY JAPANESE MATCHA
+      <div className="relative z-10 text-center px-3 pt-2">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-2">
+          <Sparkles className="w-3 h-3 text-[#7E9C72]" />
+          <span className="text-[9px] sm:text-[11px] uppercase tracking-[0.2em] text-[#A7C09D] font-medium">
+            MP BAKU · SPECIALTY MATCHA
           </span>
           {activeDrink.tag && (
-            <span className="px-1.5 py-0.5 rounded bg-[#7E9C72]/20 text-[#A7C09D] text-[10px] font-bold">
+            <span className="px-1.5 py-0.2 rounded bg-[#7E9C72]/20 text-[#A7C09D] text-[9px] font-bold">
               {activeDrink.tag}
             </span>
           )}
         </div>
 
-        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-bold tracking-tight text-[#FAF6EE] max-w-3xl mx-auto transition-all duration-300">
+        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-serif font-bold tracking-tight text-[#FAF6EE] max-w-xl mx-auto transition-all duration-300">
           {activeDrink.name}
         </h1>
-        <p className="text-xs sm:text-sm text-[#FAF6EE]/60 max-w-xl mx-auto mt-2 font-light">
+        <p className="text-[11px] sm:text-xs text-[#FAF6EE]/60 max-w-md mx-auto mt-1 font-light">
           {activeDrink.subtitle}
         </p>
       </div>

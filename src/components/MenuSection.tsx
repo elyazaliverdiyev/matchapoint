@@ -33,57 +33,57 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
   }
 
   return (
-    <section id="menu" className="py-16 sm:py-24 px-4 max-w-7xl mx-auto">
+    <section id="menu" className="py-6 sm:py-10 px-3 sm:px-4 w-full">
       
       {/* ── SECTION HEADER ── */}
-      <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+      <div className="text-center max-w-xl mx-auto mb-6 sm:mb-8">
         <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-[#7E9C72] font-semibold">
-          Authentic Kyoto & Baku Bakery
+          Kyoto Matcha & Baku Bakery
         </span>
-        <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#FAF6EE] mt-2 tracking-tight">
+        <h2 className="text-2xl sm:text-4xl font-serif font-bold text-[#FAF6EE] mt-1 tracking-tight">
           Полное Меню Бара
         </h2>
-        <p className="text-xs sm:text-sm text-[#FAF6EE]/60 mt-2 font-light">
-          Все позиции готовятся вручную из японской матчи высшего грейда и свежей ежедневной выпечки.
+        <p className="text-xs text-[#FAF6EE]/60 mt-1.5 font-light">
+          Японская церемониальная матча и свежая ежедневная выпечка.
         </p>
 
-        {/* ── CATEGORY FILTER PILLS ── */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
+        {/* ── CATEGORY FILTER PILLS (Mobile horizontal scroll) ── */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 pt-4 justify-start sm:justify-center">
           <button
             onClick={() => setActiveCategory('all')}
-            className={`px-4 py-2 rounded-full text-xs font-semibold tracking-wider transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-all flex-shrink-0 cursor-pointer ${
               activeCategory === 'all'
-                ? 'bg-[#FAF6EE] text-[#0B1509] shadow-lg'
+                ? 'bg-[#FAF6EE] text-[#0B1509] shadow-md font-bold'
                 : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/10'
             }`}
           >
-            Все позиции ({products.length})
+            Все ({products.length})
           </button>
           <button
             onClick={() => setActiveCategory('matcha')}
-            className={`px-4 py-2 rounded-full text-xs font-semibold tracking-wider transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-all flex-shrink-0 cursor-pointer ${
               activeCategory === 'matcha'
-                ? 'bg-[#7E9C72] text-[#0B1509] shadow-lg'
+                ? 'bg-[#7E9C72] text-[#0B1509] shadow-md font-bold'
                 : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/10'
             }`}
           >
-            Specialty Matcha 🍵
+            Matcha 🍃
           </button>
           <button
             onClick={() => setActiveCategory('bakery')}
-            className={`px-4 py-2 rounded-full text-xs font-semibold tracking-wider transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-all flex-shrink-0 cursor-pointer ${
               activeCategory === 'bakery'
-                ? 'bg-[#E3D7B1] text-[#0B1509] shadow-lg'
+                ? 'bg-[#E3D7B1] text-[#0B1509] shadow-md font-bold'
                 : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/10'
             }`}
           >
-            Свежая выпечка & Синнабоны 🥐
+            Выпечка 🥐
           </button>
           <button
             onClick={() => setActiveCategory('coffee_tea')}
-            className={`px-4 py-2 rounded-full text-xs font-semibold tracking-wider transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-all flex-shrink-0 cursor-pointer ${
               activeCategory === 'coffee_tea'
-                ? 'bg-[#FAF6EE] text-[#0B1509] shadow-lg'
+                ? 'bg-[#FAF6EE] text-[#0B1509] shadow-md font-bold'
                 : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/10'
             }`}
           >
