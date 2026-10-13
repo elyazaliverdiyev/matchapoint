@@ -3,18 +3,16 @@ import { Order, OrderStatus } from '../types'
 import { 
   X, 
   Smartphone, 
-  CheckCircle2, 
   Sparkles, 
   Clock, 
   QrCode, 
   Minimize2, 
-  Maximize2, 
-  Flame, 
   Share2, 
   Volume2,
   Check
 } from 'lucide-react'
 import { playOrderReadySound } from '../lib/audio'
+import { useEscape, useBodyLock, useFocusTrap } from '../lib/useModal'
 
 interface LiveTicketModalProps {
   order: Order
@@ -29,6 +27,9 @@ export const LiveTicketModal: React.FC<LiveTicketModalProps> = ({
 }) => {
   const [copied, setCopied] = useState(false)
   const [playedAudio, setPlayedAudio] = useState(false)
+  useEscape(onClose, true)
+  useBodyLock(true)
+  const trapRef = useFocusTrap(true)
 
   // Play audio chime when status becomes ready
   useEffect(() => {
@@ -77,11 +78,20 @@ export const LiveTicketModal: React.FC<LiveTicketModalProps> = ({
 
   const currentStepIdx = getStepIndex(order.status)
   const isReady = order.status === 'ready'
-  const isCompleted = order.status === 'completed'
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-      <div className="w-full max-w-[440px] max-h-[92vh] overflow-y-auto no-scrollbar rounded-t-[36px] sm:rounded-3xl bg-[#0D180E] border-t sm:border border-white/20 shadow-2xl text-[#FAF6EE] flex flex-col relative">
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-fade-in"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        ref={trapRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Талон заказа"
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-[440px] max-h-[92vh] overflow-y-auto no-scrollbar rounded-t-[32px] sm:rounded-3xl bg-[#0D180E] border-t sm:border border-white/20 shadow-2xl text-[#FAF6EE] flex flex-col relative">
         
         {/* Swipe Handle for mobile */}
         <div className="w-12 h-1.5 rounded-full bg-white/20 mx-auto mt-3 sm:hidden flex-shrink-0" />

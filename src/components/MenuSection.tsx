@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Product, ProductCategory, ProductSize } from '../types'
-import { Plus, Check, AlertCircle, Sparkles } from 'lucide-react'
+import { Plus, Check } from 'lucide-react'
+import { getDefaultSize, resolvePrice } from '../lib/orderUtils'
 
 interface MenuSectionProps {
   products: Product[]
@@ -26,7 +27,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
   }
 
   const handleAdd = (product: Product) => {
-    const size = itemSizes[product.id] || (product.prices.M ? 'M' : 'standard')
+    const size = itemSizes[product.id] || getDefaultSize(product)
     onAddToCart(product, size)
     setRecentlyAddedId(product.id)
     setTimeout(() => setRecentlyAddedId(null), 1200)
@@ -96,12 +97,8 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {filteredProducts.map((product) => {
           const soldOut = isSoldOut(product.id)
-          const currentSize = itemSizes[product.id] || (product.prices.M ? 'M' : 'standard')
-          const price = currentSize === 'M'
-            ? product.prices.M
-            : currentSize === 'L'
-            ? product.prices.L
-            : product.prices.standard
+          const currentSize = itemSizes[product.id] || getDefaultSize(product)
+          const price = resolvePrice(product, currentSize)
           const isAdded = recentlyAddedId === product.id
 
           const hasSizes = !!(product.prices.M && product.prices.L)
@@ -148,7 +145,8 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                     <img
                       src={product.image}
                       alt={product.name}
-                      className="w-13 h-13 object-contain flex-shrink-0 drop-shadow-md rounded-lg"
+                      loading="lazy"
+                      className="w-14 h-14 object-contain flex-shrink-0 drop-shadow-md rounded-lg"
                     />
                   )}
                 </div>

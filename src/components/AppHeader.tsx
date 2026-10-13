@@ -1,5 +1,5 @@
 import React from 'react'
-import { Sliders, Send, Smartphone, Sparkles } from 'lucide-react'
+import { Sliders, Send, Smartphone } from 'lucide-react'
 import { playTapSound } from '../lib/audio'
 
 interface AppHeaderProps {

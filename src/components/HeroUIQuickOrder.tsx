@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { Product, ProductCategory, ProductSize } from '../types'
-import { Plus, Minus, Check, ShoppingBag, Snowflake, Flame } from 'lucide-react'
+import { Plus, Check, Snowflake, Flame } from 'lucide-react'
 import { playTapSound } from '../lib/audio'
+import { getDefaultSize, resolvePrice } from '../lib/orderUtils'
 
 interface HeroUIQuickOrderProps {
   products: Product[]
@@ -29,7 +30,7 @@ export const HeroUIQuickOrder: React.FC<HeroUIQuickOrderProps> = ({
 
   const handleQuickAdd = (product: Product) => {
     playTapSound()
-    const size = selectedSizes[product.id] || (product.prices.M ? 'M' : 'standard')
+    const size = selectedSizes[product.id] || getDefaultSize(product)
     onAddToCart(product, size)
 
     setAddedItemIds((prev) => ({ ...prev, [product.id]: true }))
@@ -101,12 +102,8 @@ export const HeroUIQuickOrder: React.FC<HeroUIQuickOrderProps> = ({
       <div className="space-y-2.5">
         {filtered.map((product) => {
           const soldOut = isSoldOut(product.id)
-          const size = selectedSizes[product.id] || (product.prices.M ? 'M' : 'standard')
-          const price = size === 'M'
-            ? (product.prices.M ?? 0)
-            : size === 'L'
-            ? (product.prices.L ?? 0)
-            : (product.prices.standard ?? 0)
+          const size = selectedSizes[product.id] || getDefaultSize(product)
+          const price = resolvePrice(product, size)
 
           const hasSizes = !!(product.prices.M && product.prices.L)
           const isAdded = !!addedItemIds[product.id]
@@ -127,6 +124,7 @@ export const HeroUIQuickOrder: React.FC<HeroUIQuickOrderProps> = ({
                     <img
                       src={product.image}
                       alt={product.name}
+                      loading="lazy"
                       className="w-7 h-7 object-contain rounded flex-shrink-0"
                     />
                   ) : (

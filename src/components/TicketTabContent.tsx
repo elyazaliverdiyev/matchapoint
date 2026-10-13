@@ -198,7 +198,7 @@ export const TicketTabContent: React.FC<TicketTabContentProps> = ({
             {order.paymentMethod === 'qr_m10' && (
               <>Откройте приложение m10 или Birbank и отсканируйте QR-код на кассе бара.</>
             )}
-            {order.paymentMethod === 'cash' && (
+            {order.paymentMethod === 'pos_cash' && (
               <>Оплатите заказ наличными или на физическом POS-терминале у стойки.</>
             )}
           </p>

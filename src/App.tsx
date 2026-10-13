@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react'
 import { PRODUCTS } from './data/menu'
 import { TELEGRAM_POSTS as FALLBACK_TELEGRAM_POSTS } from './data/telegramFeed'
 import { Product, ProductSize, CartItem, Order, OrderStatus, PaymentMethod, TelegramPost } from './types'
@@ -14,20 +14,18 @@ import { TelegramLiveTicker } from './components/TelegramLiveTicker'
 import { MenuSection } from './components/MenuSection'
 import { LocationHours } from './components/LocationHours'
 import { Footer } from './components/Footer'
-import { CartDrawer } from './components/CartDrawer'
-import { LiveTicketModal } from './components/LiveTicketModal'
-import { BaristaKDSModal } from './components/BaristaKDSModal'
-import { AddToHomeScreenModal } from './components/AddToHomeScreenModal'
 import { HeroUIQuickOrder } from './components/HeroUIQuickOrder'
+const CartDrawer = lazy(() => import('./components/CartDrawer').then(m => ({ default: m.CartDrawer })))
+const LiveTicketModal = lazy(() => import('./components/LiveTicketModal').then(m => ({ default: m.LiveTicketModal })))
+const BaristaKDSModal = lazy(() => import('./components/BaristaKDSModal').then(m => ({ default: m.BaristaKDSModal })))
+const AddToHomeScreenModal = lazy(() => import('./components/AddToHomeScreenModal').then(m => ({ default: m.AddToHomeScreenModal })))
 import { 
-  Sparkles, 
   Smartphone, 
   Monitor, 
   Send, 
   Sliders, 
   Clock, 
   MapPin, 
-  CheckCircle2, 
   Bike,
   ExternalLink 
 } from 'lucide-react'
@@ -40,6 +38,7 @@ import {
   subscribeToMatchaUpdates
 } from './lib/supabaseService'
 import { playOrderReadySound, playTapSound } from './lib/audio'
+import { generateOrderId, nextTicketNumber, resolvePrice } from './lib/orderUtils'
 
 export const App: React.FC = () => {
   // Mobile frame vs wide mode (default 'mobile' on all screens for authentic PWA feel!)
@@ -121,16 +120,35 @@ export const App: React.FC = () => {
   const cartTotalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const cartTotalCount = cart.reduce((sum, item) => sum + item.quantity, 0)
 
-  // ── CLOUD SYNC: INITIAL LOAD & SUPABASE REALTIME ──
+  // ── CLOUD SYNC: INITIAL LOAD & SUPABASE REALTIME (merge, don't overwrite) ──
   const syncWithCloud = useCallback(async () => {
-    const cloudOrders = await fetchCloudOrders()
+    const [cloudOrders, cloudPosts] = await Promise.all([
+      fetchCloudOrders(),
+      fetchCloudTelegramPosts(),
+    ])
     if (cloudOrders && cloudOrders.length > 0) {
-      setOrders(cloudOrders)
+      setOrders((prev) => {
+        const prevIds = new Set(prev.map((o) => o.id))
+        const merged = [...prev]
+        for (const co of cloudOrders) {
+          if (!prevIds.has(co.id)) merged.push(co)
+          else {
+            // update existing with cloud status (barista changes)
+            const idx = merged.findIndex((o) => o.id === co.id)
+            if (idx !== -1) merged[idx] = { ...merged[idx], ...co }
+          }
+        }
+        // sort by ticketNumber desc
+        merged.sort((a, b) => (b.ticketNumber ?? 0) - (a.ticketNumber ?? 0))
+        return merged
+      })
     }
-
-    const cloudPosts = await fetchCloudTelegramPosts()
     if (cloudPosts && cloudPosts.length > 0) {
-      setTelegramPosts(cloudPosts)
+      setTelegramPosts((prev) => {
+        const prevIds = new Set(prev.map((p) => p.id))
+        const incoming = cloudPosts.filter((p) => !prevIds.has(p.id))
+        return incoming.length > 0 ? [...incoming, ...prev] : prev
+      })
     }
   }, [])
 
@@ -200,15 +218,21 @@ export const App: React.FC = () => {
     } catch {}
   }, [activeOrderId])
 
-  // Check store open status (Baku time UTC+4)
-  const checkStoreOpen = (): boolean => {
+  // Check store open status (Baku time UTC+4) — reactive
+  const [storeTick, setStoreTick] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => setStoreTick((t) => t + 1), 60_000)
+    return () => clearInterval(id)
+  }, [])
+  const checkStoreOpen = useCallback((): boolean => {
+    void storeTick
     const now = new Date()
     const utcHours = now.getUTCHours()
     const bakuHours = (utcHours + 4) % 24
     const day = now.getUTCDay()
     const isOpenDay = day === 3 || day === 6 || day === 0 // Wed, Sat, Sun
     return isOpenDay && bakuHours >= 14 && bakuHours < 21
-  }
+  }, [storeTick])
 
   const isStoreOpen = checkStoreOpen()
 
@@ -216,11 +240,7 @@ export const App: React.FC = () => {
   const handleAddToCart = (product: Product, size: ProductSize) => {
     if (soldOutIds.includes(product.id)) return
 
-    const price = size === 'M'
-      ? (product.prices.M ?? 0)
-      : size === 'L'
-      ? (product.prices.L ?? 0)
-      : (product.prices.standard ?? 0)
+    const price = resolvePrice(product, size)
 
     const compositeId = `${product.id}-${size}`
 
@@ -279,8 +299,8 @@ export const App: React.FC = () => {
 
     const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
     
-    const nextNum = (orders.length > 0 ? Math.max(...orders.map((o) => o.ticketNumber || 0)) : 0) + 1
-    const orderId = `#MP-${String(nextNum).padStart(2, '0')}`
+    const nextNum = nextTicketNumber(orders)
+    const orderId = generateOrderId()
 
     const activePreparingCount = orders.filter((o) => o.status === 'preparing' || o.status === 'paid').length
     const estimatedMinutes = 3 + activePreparingCount * 2
@@ -308,8 +328,8 @@ export const App: React.FC = () => {
     setCartOpen(false)
     setActiveTab('ticket')
 
-    // Save to Supabase Cloud in background
-    saveCloudOrder(newOrder).catch(() => {})
+    // Save to Supabase Cloud in background — log on failure
+    saveCloudOrder(newOrder).then((ok) => { if (!ok) console.warn('Cloud save failed for', orderId) }).catch((e) => console.warn(e))
   }
 
   // Barista updates order status
@@ -320,13 +340,13 @@ export const App: React.FC = () => {
     if (newStatus === 'ready' && orderId === activeOrderId) {
       playOrderReadySound()
     }
-    updateCloudOrderStatus(orderId, newStatus).catch(() => {})
+    updateCloudOrderStatus(orderId, newStatus).then((ok) => { if (!ok) console.warn('Cloud status update failed', orderId, newStatus) }).catch((e) => console.warn(e))
   }
 
   // Create demo order for test
   const handleCreateDemoOrder = () => {
-    const nextNum = (orders.length > 0 ? Math.max(...orders.map((o) => o.ticketNumber || 0)) : 0) + 1
-    const orderId = `#MP-${String(nextNum).padStart(2, '0')}`
+    const nextNum = nextTicketNumber(orders)
+    const orderId = generateOrderId()
     
     const now = new Date()
     const hours = String(now.getHours()).padStart(2, '0')
@@ -365,7 +385,7 @@ export const App: React.FC = () => {
     setOrders((prev) => [demoOrder, ...prev])
     setActiveOrderId(orderId)
     setActiveTab('ticket')
-    saveCloudOrder(demoOrder).catch(() => {})
+    saveCloudOrder(demoOrder).then((ok) => { if (!ok) console.warn('Cloud save failed demo', orderId) }).catch((e) => console.warn(e))
   }
 
   // Barista publishes new Telegram Broadcast
@@ -739,48 +759,52 @@ export const App: React.FC = () => {
         </div>
       )}
 
-      {/* ── MODALS & BOTTOM SHEETS ── */}
+      {/* ── MODALS & BOTTOM SHEETS (lazy) ── */}
 
-      {/* Cart Drawer / Bottom Sheet */}
       {cartOpen && (
-        <CartDrawer
-          items={cart}
-          onUpdateQuantity={handleUpdateQuantity}
-          onRemoveItem={handleRemoveItem}
-          onClearCart={handleClearCart}
-          onCheckout={handleCheckout}
-          onClose={() => setCartOpen(false)}
-        />
+        <Suspense fallback={null}>
+          <CartDrawer
+            items={cart}
+            onUpdateQuantity={handleUpdateQuantity}
+            onRemoveItem={handleRemoveItem}
+            onClearCart={handleClearCart}
+            onCheckout={handleCheckout}
+            onClose={() => setCartOpen(false)}
+          />
+        </Suspense>
       )}
 
-      {/* Customer Live Digital Ticket Modal */}
       {ticketModalOpen && activeOrder && (
-        <LiveTicketModal
-          order={activeOrder}
-          onClose={() => setTicketModalOpen(false)}
-          onMinimize={() => setTicketModalOpen(false)}
-        />
+        <Suspense fallback={null}>
+          <LiveTicketModal
+            order={activeOrder}
+            onClose={() => setTicketModalOpen(false)}
+            onMinimize={() => setTicketModalOpen(false)}
+          />
+        </Suspense>
       )}
 
-      {/* Barista KDS (Queue & Stop-List & Telegram Dispatcher) Console */}
       {kdsOpen && (
-        <BaristaKDSModal
-          orders={orders}
-          products={PRODUCTS}
-          soldOutIds={soldOutIds}
-          telegramPosts={telegramPosts}
-          onUpdateOrderStatus={handleUpdateOrderStatus}
-          onToggleSoldOut={handleToggleSoldOut}
-          onResetStopList={handleResetStopList}
-          onPublishTelegramPost={handlePublishTelegramPost}
-          onCreateDemoOrder={handleCreateDemoOrder}
-          onClose={() => setKdsOpen(false)}
-        />
+        <Suspense fallback={null}>
+          <BaristaKDSModal
+            orders={orders}
+            products={PRODUCTS}
+            soldOutIds={soldOutIds}
+            telegramPosts={telegramPosts}
+            onUpdateOrderStatus={handleUpdateOrderStatus}
+            onToggleSoldOut={handleToggleSoldOut}
+            onResetStopList={handleResetStopList}
+            onPublishTelegramPost={handlePublishTelegramPost}
+            onCreateDemoOrder={handleCreateDemoOrder}
+            onClose={() => setKdsOpen(false)}
+          />
+        </Suspense>
       )}
 
-      {/* PWA Add to Home Screen Modal */}
       {a2hsOpen && (
-        <AddToHomeScreenModal onClose={() => setA2hsOpen(false)} />
+        <Suspense fallback={null}>
+          <AddToHomeScreenModal onClose={() => setA2hsOpen(false)} />
+        </Suspense>
       )}
 
     </div>

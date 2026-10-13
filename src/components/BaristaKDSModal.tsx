@@ -4,21 +4,17 @@ import {
   X, 
   Search, 
   RotateCcw, 
-  CheckCircle2, 
-  Clock, 
-  Smartphone, 
   Coffee, 
   Sparkles, 
   Sliders, 
   Volume2, 
   PlusCircle,
-  QrCode,
   Send,
-  Radio,
   ExternalLink,
-  MessageSquare
+  Smartphone,
 } from 'lucide-react'
 import { playOrderReadySound, playTapSound } from '../lib/audio'
+import { useEscape, useBodyLock, useFocusTrap } from '../lib/useModal'
 
 interface BaristaKDSModalProps {
   orders: Order[]
@@ -47,6 +43,9 @@ export const BaristaKDSModal: React.FC<BaristaKDSModalProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'kds' | 'stoplist' | 'telegram'>('kds')
   const [searchTerm, setSearchTerm] = useState('')
+  useEscape(onClose, true)
+  useBodyLock(true)
+  const trapRef = useFocusTrap(true)
   
   // Telegram composer state
   const [newPostText, setNewPostText] = useState('')
@@ -86,8 +85,18 @@ export const BaristaKDSModal: React.FC<BaristaKDSModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-      <div className="w-full max-w-4xl max-h-[92vh] bg-[#0A140B] border border-white/20 rounded-3xl flex flex-col shadow-2xl text-[#FAF6EE] overflow-hidden">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fade-in"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        ref={trapRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Панель бариста"
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-4xl max-h-[92vh] bg-[#0A140B] border border-white/20 rounded-3xl flex flex-col shadow-2xl text-[#FAF6EE] overflow-hidden">
         
         {/* Top Navbar */}
         <div className="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between bg-black/30">

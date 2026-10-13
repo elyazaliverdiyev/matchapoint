@@ -1,14 +1,28 @@
 import React from 'react'
-import { X, Smartphone, Share, PlusSquare, ArrowDown } from 'lucide-react'
+import { X, Smartphone, Share, PlusSquare } from 'lucide-react'
+import { useEscape, useBodyLock, useFocusTrap } from '../lib/useModal'
 
 interface AddToHomeScreenModalProps {
   onClose: () => void
 }
 
 export const AddToHomeScreenModal: React.FC<AddToHomeScreenModalProps> = ({ onClose }) => {
+  useEscape(onClose, true)
+  useBodyLock(true)
+  const trapRef = useFocusTrap(true)
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-      <div className="w-full max-w-sm glass-panel rounded-3xl p-6 border border-white/20 shadow-2xl space-y-5 animate-fade-in text-[#FAF6EE]">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        ref={trapRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Установка приложения"
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-sm glass-panel rounded-3xl p-6 border border-white/20 shadow-2xl space-y-5 animate-fade-in text-[#FAF6EE]">
         
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-white/10">
@@ -27,6 +41,7 @@ export const AddToHomeScreenModal: React.FC<AddToHomeScreenModalProps> = ({ onCl
           </div>
           <button
             onClick={onClose}
+            aria-label="Закрыть"
             className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/15 flex items-center justify-center text-white/70 hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-3.5 h-3.5" />

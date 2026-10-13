@@ -35,17 +35,17 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
   const isTicketReady = activeOrder?.status === 'ready'
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 pb-safe pointer-events-auto">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 pointer-events-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       {/* Container max-width to align with mobile container */}
       <div className="w-full max-w-[440px] mx-auto px-3 pb-3 pt-1">
-        <div className="backdrop-blur-2xl bg-[#0E1A0E]/95 border border-white/15 rounded-3xl p-1.5 shadow-[0_10px_35px_rgba(0,0,0,0.8)] flex items-center justify-around">
+        <div className="backdrop-blur-2xl bg-[#0E1A0E]/90 border border-white/[0.08] rounded-[24px] p-1 shadow-[0_12px_40px_rgba(0,0,0,0.85),0_1px_0_rgba(255,255,255,0.06)_inset] flex items-center justify-around">
           
           {/* TAB 1: МЕНЮ */}
           <button
             onClick={() => handleTabClick('menu')}
-            className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-2xl transition-all cursor-pointer ${
+            className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-[16px] transition-all duration-200 cursor-pointer ${
               activeTab === 'menu'
-                ? 'bg-[#7E9C72] text-[#0B1509] font-bold shadow-md shadow-[#7E9C72]/20 scale-102'
+                ? 'bg-[#7E9C72] text-[#0B1509] font-bold shadow-sm '
                 : 'text-[#FAF6EE]/70 hover:text-white'
             }`}
           >
@@ -58,9 +58,9 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
           {/* TAB 2: ТАЛОН (ЖИВОЙ ЗАКАЗ) */}
           <button
             onClick={() => handleTabClick('ticket')}
-            className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-2xl relative transition-all cursor-pointer ${
+            className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-[16px] relative transition-all duration-200 cursor-pointer ${
               activeTab === 'ticket'
-                ? 'bg-[#7E9C72] text-[#0B1509] font-bold shadow-md shadow-[#7E9C72]/20 scale-102'
+                ? 'bg-[#7E9C72] text-[#0B1509] font-bold shadow-sm '
                 : 'text-[#FAF6EE]/70 hover:text-white'
             }`}
           >
@@ -87,9 +87,9 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
           {/* TAB 3: СВОДКИ (TELEGRAM LIVE) */}
           <button
             onClick={() => handleTabClick('feed')}
-            className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-2xl relative transition-all cursor-pointer ${
+            className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-[16px] relative transition-all duration-200 cursor-pointer ${
               activeTab === 'feed'
-                ? 'bg-[#7E9C72] text-[#0B1509] font-bold shadow-md shadow-[#7E9C72]/20 scale-102'
+                ? 'bg-[#7E9C72] text-[#0B1509] font-bold shadow-sm '
                 : 'text-[#FAF6EE]/70 hover:text-white'
             }`}
           >
@@ -105,9 +105,9 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
           {/* TAB 4: WOLT ДОСТАВКА */}
           <button
             onClick={() => handleTabClick('wolt')}
-            className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-2xl transition-all cursor-pointer ${
+            className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-[16px] transition-all duration-200 cursor-pointer ${
               activeTab === 'wolt'
-                ? 'bg-[#00C2E8] text-black font-bold shadow-md shadow-[#00C2E8]/20 scale-102'
+                ? 'bg-[#00C2E8] text-black font-bold shadow-sm '
                 : 'text-[#FAF6EE]/70 hover:text-[#00C2E8]'
             }`}
           >
@@ -120,9 +120,9 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
           {/* TAB 5: КОРЗИНА */}
           <button
             onClick={() => handleTabClick('cart')}
-            className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-2xl relative transition-all cursor-pointer ${
+            className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-[16px] relative transition-all duration-200 cursor-pointer ${
               cartCount > 0
-                ? 'bg-[#D4AF37]/90 text-black font-bold shadow-lg shadow-[#D4AF37]/20 scale-102'
+                ? 'bg-[#D4AF37]/90 text-black font-bold shadow-md '
                 : 'text-[#FAF6EE]/70 hover:text-white'
             }`}
           >

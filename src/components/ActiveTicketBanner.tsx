@@ -39,7 +39,7 @@ export const ActiveTicketBanner: React.FC<ActiveTicketBannerProps> = ({ order, o
   }
 
   return (
-    <div className="fixed bottom-[74px] left-0 right-0 z-40 pointer-events-auto animate-fade-in">
+    <div className="fixed left-0 right-0 z-40 pointer-events-auto animate-fade-in" style={{ bottom: 'calc(74px + env(safe-area-inset-bottom, 0px))' }}>
       <div className="w-full max-w-[440px] mx-auto px-3">
         <button
           onClick={handleClick}

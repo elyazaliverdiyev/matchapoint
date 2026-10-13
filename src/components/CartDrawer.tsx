@@ -15,6 +15,7 @@ import {
   User
 } from 'lucide-react'
 import { playTapSound } from '../lib/audio'
+import { useEscape, useBodyLock, useFocusTrap } from '../lib/useModal'
 
 interface CartDrawerProps {
   items: CartItem[]
@@ -40,6 +41,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const [orderType, setOrderType] = useState<'takeaway' | 'dinein'>('takeaway')
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('nfc_tap')
   const [customerName, setCustomerName] = useState('')
+  useEscape(onClose, true)
+  useBodyLock(true)
+  const trapRef = useFocusTrap(true)
 
   const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const totalCount = items.reduce((sum, item) => sum + item.quantity, 0)
@@ -52,8 +56,18 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/85 backdrop-blur-md animate-fade-in p-0 sm:p-4">
-      <div className="w-full max-w-[440px] max-h-[92vh] bg-[#0E1A0C] border-t sm:border border-white/15 rounded-t-[36px] sm:rounded-3xl flex flex-col shadow-2xl p-4 sm:p-6 text-[#FAF6EE] overflow-hidden">
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/85 backdrop-blur-md animate-fade-in p-0 sm:p-4"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        ref={trapRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Корзина"
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-[440px] max-h-[92vh] bg-[#0E1A0C] border-t sm:border border-white/15 rounded-t-[32px] sm:rounded-3xl flex flex-col shadow-2xl p-4 sm:p-6 text-[#FAF6EE] overflow-hidden">
         
         {/* Mobile Swipe Handle */}
         <div className="w-12 h-1.5 rounded-full bg-white/20 mx-auto mb-3 sm:hidden flex-shrink-0" />
@@ -76,6 +90,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
           <button
             onClick={onClose}
+            aria-label="Закрыть корзину"
             className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 flex items-center justify-center text-white/70 hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />

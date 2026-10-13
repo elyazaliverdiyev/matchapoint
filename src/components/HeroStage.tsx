@@ -125,7 +125,8 @@ export const HeroStage: React.FC<HeroStageProps> = ({
                   key={activeDrink.id}
                   src={activeDrink.image}
                   alt={activeDrink.name}
-                  className="h-44 sm:h-48 w-auto object-contain drop-shadow-[0_16px_30px_rgba(0,0,0,0.9)] transition-all duration-500 transform group-hover:scale-102"
+                  loading="eager"
+                  className="h-44 sm:h-48 w-auto object-contain drop-shadow-[0_16px_30px_rgba(0,0,0,0.9)] transition-all duration-500 transform group-hover:"
                 />
                 
                 {soldOut && (
@@ -177,6 +178,7 @@ export const HeroStage: React.FC<HeroStageProps> = ({
             <img
               src="/drinks/moss-pedestal.png"
               alt="Matcha Moss Pedestal"
+              loading="lazy"
               className="w-52 sm:w-60 h-auto object-contain drop-shadow-[0_12px_22px_rgba(0,0,0,0.95)] opacity-95"
             />
             {/* Ground Contact Shadow */}
@@ -190,7 +192,7 @@ export const HeroStage: React.FC<HeroStageProps> = ({
       <div className="relative z-10 w-full max-w-xs mx-auto px-2 space-y-2.5">
         
         {/* iOS Native Pill Bar */}
-        <div className="bg-black/60 backdrop-blur-xl p-1.5 rounded-2xl border border-white/10 flex items-center justify-between gap-2 shadow-2xl">
+        <div className="bg-black/60 backdrop-blur-xl p-1.5 rounded-[24px] border border-white/[0.08] flex items-center justify-between gap-2 shadow-2xl">
           
           {/* iOS Segmented Control M / L */}
           <div className="flex items-center bg-white/10 p-0.5 rounded-xl border border-white/5">
@@ -281,7 +283,7 @@ export const HeroStage: React.FC<HeroStageProps> = ({
                   }}
                   className={`flex-shrink-0 px-2.5 py-1 rounded-xl text-[11px] transition-all flex items-center gap-1.5 border cursor-pointer ${
                     active
-                      ? 'bg-[#FAF6EE] text-[#0B1509] border-white shadow-md font-bold scale-102'
+                      ? 'bg-[#FAF6EE] text-[#0B1509] border-white shadow-md font-bold '
                       : 'bg-white/5 text-[#FAF6EE]/80 border-white/10 hover:bg-white/10 hover:text-white'
                   }`}
                 >
